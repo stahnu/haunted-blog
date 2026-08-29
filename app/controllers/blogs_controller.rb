@@ -11,7 +11,7 @@ class BlogsController < ApplicationController
   end
 
   def show
-    head :not_found if @blog.secret? && !@blog.owned_by?(current_user)
+    raise ActiveRecord::RecordNotFound if @blog.secret? && !@blog.owned_by?(current_user)
   end
 
   def new
@@ -51,7 +51,7 @@ class BlogsController < ApplicationController
   end
 
   def authorize_blog
-    head :not_found unless @blog.owned_by?(current_user)
+    raise ActiveRecord::RecordNotFound unless @blog.owned_by?(current_user)
   end
 
   def blog_params
