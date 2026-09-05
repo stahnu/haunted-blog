@@ -11,7 +11,7 @@ class BlogsController < ApplicationController
   end
 
   def show
-    raise ActiveRecord::RecordNotFound if @blog.secret? && !@blog.owned_by?(current_user)
+    render_not_found if @blog.secret? && !@blog.owned_by?(current_user)
   end
 
   def new
@@ -50,8 +50,12 @@ class BlogsController < ApplicationController
     @blog = Blog.find(params[:id])
   end
 
+  def render_not_found
+    render status: :not_found, file: Rails.root.join('public/404.html'), layout: false
+  end
+
   def authorize_blog
-    raise ActiveRecord::RecordNotFound unless @blog.owned_by?(current_user)
+    render_not_found unless @blog.owned_by?(current_user)
   end
 
   def blog_params
