@@ -3,15 +3,14 @@
 class BlogsController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[index show]
 
-  before_action :set_blog, only: %i[show edit update destroy]
-  before_action :authorize_blog, only: %i[edit update destroy]
+  before_action :set_owned_blog, only: %i[edit update destroy]
 
   def index
     @blogs = Blog.search(params[:term]).published.default_order
   end
 
   def show
-    render_not_found if @blog.secret? && !@blog.owned_by?(current_user)
+    @blog = Blog.published.or(Blog.owned_by(current_user)).find(params[:id])
   end
 
   def new
@@ -46,16 +45,8 @@ class BlogsController < ApplicationController
 
   private
 
-  def set_blog
-    @blog = Blog.find(params[:id])
-  end
-
-  def render_not_found
-    render status: :not_found, file: Rails.root.join('public/404.html'), layout: false
-  end
-
-  def authorize_blog
-    render_not_found unless @blog.owned_by?(current_user)
+  def set_owned_blog
+    @blog = Blog.owned_by(current_user).find(params[:id])
   end
 
   def blog_params
