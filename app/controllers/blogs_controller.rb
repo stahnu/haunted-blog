@@ -46,7 +46,7 @@ class BlogsController < ApplicationController
   private
 
   def set_owned_blog
-    @blog = Blog.owned_by(current_user).find(params[:id])
+    @blog = current_user.blogs.find(params[:id])
   end
 
   def blog_params
